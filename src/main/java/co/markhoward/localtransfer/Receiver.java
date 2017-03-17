@@ -3,19 +3,25 @@ package co.markhoward.localtransfer;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
+import java.net.InterfaceAddress;
+import java.net.NetworkInterface;
+import java.util.List;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import co.markhoward.localtransfer.heartbeat.Peer;
+import lombok.AllArgsConstructor;
+
+@AllArgsConstructor
 public class Receiver implements Runnable {
 	private final int port;
 	private final ObjectMapper objectMapper;
-	public Receiver (final int port, final ObjectMapper objectMapper){
-		this.port = port;
-		this.objectMapper = objectMapper;
-	}
+	private final Set<Peer> found;
 	
 	@Override
 	public void run (){
@@ -25,7 +31,10 @@ public class Receiver implements Runnable {
 				DatagramPacket datagramPacket = new DatagramPacket(buffer, buffer.length);
 				datagramSocket.receive(datagramPacket);
 				String received = new String(datagramPacket.getData(), 0, datagramPacket.getLength());
-				Beat beat = objectMapper.readValue(received, Beat.class);
+				Peer beat = objectMapper.readValue(received, Peer.class);
+				if(isLocal(beat))
+					continue;
+				found.add(beat);
 				logger.debug("Received: {}", beat);
 			}
 		} catch (IOException exception) {
@@ -33,5 +42,19 @@ public class Receiver implements Runnable {
 		}
 	}
 	
+	private boolean isLocal(final Peer beat) {
+		for(NetworkInterface networkInterface: NetworkInterfaceUtils.localNetworkInterfaces()) {
+			List<InterfaceAddress> addresses = networkInterface.getInterfaceAddresses();
+			for(InterfaceAddress address: addresses){
+				InetAddress iNetAddress = address.getAddress();
+				if(iNetAddress == null)
+					continue;
+				if(beat.getIpAddress().equals(iNetAddress.getHostAddress()))
+					return true;
+			}
+		}
+		return false;
+	}
+
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 }

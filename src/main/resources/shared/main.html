@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title></title>
+  <meta charset="UTF-8">
+  <link type="text/css" rel="stylesheet" href="css/materialize.min.css" media="screen,projection" />
+  <link href="css/style.css" rel="stylesheet">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
+
+<body>
+  <div class="container">
+    <div class="row" class="col s12"></div>
+    <div class="row">
+      <div class="col s12">
+        <h5>Available peers: </h5>
+        <ul class="collapsible" data-collapsible="accordion">
+          <li>
+            <div class="collapsible-header">192.168.1.1 - Evan</div>
+            <div class="collapsible-body">
+              <span>
+                <ul>
+                  <li><a href="#">Game1.exe</a></li>
+                  <li><a href="#">Game2.exe</a></li>
+                  <li><a href="#">somepicture.jpg</a></li>
+                </ul>
+              </span>
+            </div>
+          </li>
+        </ul>
+      </div>
+      <div class="col s12">
+        <h5>Shared files: </h5>
+        <ul class="collection with-header">
+          <li class="collection-item">
+            <div>Game1.exe<a href="#!" class="secondary-content">x</a></div>
+          </li>
+          <li class="collection-item">
+            <div>somepicture.jpg<a href="#!" class="secondary-content">x</a></div>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div class="row">
+      <div class="center-align">
+        <button data-target="file-modal" class="btn" class="waves-effect waves-light btn-large">Add file</button>
+        <button data-target="quit-modal" class="btn" class="waves-effect waves-light btn-large">Quit</button>
+      </div>
+    </div>
+  </div>
+  <div id="quit-modal" class="modal">
+    <div class="modal-content">
+      <h5>Are you sure you would like to quit?</h5>
+    </div>
+    <div class="modal-footer">
+      <a href="/quit" class="modal-action modal-close waves-effect waves-green btn-flat">Agree</a>
+      <a class="modal-action modal-close waves-effect waves-green btn-flat">Cancel</a>
+    </div>
+  </div>
+  <div id="file-modal" class="modal">
+    <div class="modal-content">
+      <h5>Choose the file to add</h5>
+      <form>
+        <input type="file" id="input">
+      </form>
+    </div>
+    <div class="modal-footer">
+      <a href="/quit" class=" modal-action modal-close waves-effect waves-green btn-flat">Add file</a>
+      <a href="#!" class=" modal-action modal-close waves-effect waves-green btn-flat">Cancel</a>
+    </div>
+  </div>
+  <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+  <script type="text/javascript" src="js/materialize.min.js"></script>
+  <script type="text/javascript" src="js/main.js"></script>
+</body>
+
+</html>

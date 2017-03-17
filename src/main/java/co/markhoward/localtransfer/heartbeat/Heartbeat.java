@@ -1,12 +1,12 @@
-package co.markhoward.localtransfer;
+package co.markhoward.localtransfer.heartbeat;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 import java.net.InterfaceAddress;
 import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.util.Enumeration;
+import java.util.Date;
 import java.util.List;
 import java.util.TimerTask;
 
@@ -15,36 +15,31 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import co.markhoward.localtransfer.NetworkInterfaceUtils;
+import lombok.AllArgsConstructor;
+
+@AllArgsConstructor
 public class Heartbeat extends TimerTask {
 	private final int port;
 	private final ObjectMapper objectMapper;
-	public Heartbeat(final int port, final ObjectMapper objectMapper) {
-		this.port = port;
-		this.objectMapper = objectMapper;
-	}
 
 	@Override
 	public void run() {
-		try {
-			Enumeration<NetworkInterface> interfaces = NetworkInterface.getNetworkInterfaces();
-			while (interfaces.hasMoreElements()) {
-				NetworkInterface networkInterface = interfaces.nextElement();
-				if (networkInterface.isLoopback() || !networkInterface.isUp())
-					continue;
-				logger.debug("Found interface which is neither a loopback or down: {}", networkInterface.getName());
-				List<InterfaceAddress> addresses = networkInterface.getInterfaceAddresses();
-				sendMessages(addresses);
-			}
-		} catch (SocketException exception) {
-			logger.error("An I/O error has occurred", exception);
+		for(NetworkInterface networkInterface: NetworkInterfaceUtils.localNetworkInterfaces()) {
+			List<InterfaceAddress> addresses = networkInterface.getInterfaceAddresses();
+			sendMessages(addresses);
 		}
 	}
-	
+
 	private void sendMessages(final List<InterfaceAddress> addresses){
 		for(InterfaceAddress address: addresses){
 			if(address.getBroadcast() == null)
 				continue;
-			Beat beat = new Beat(address.toString(), port);
+			InetAddress iNetAddress = address.getAddress();
+			if(iNetAddress == null)
+				continue;
+			Date now = new Date ();
+			Peer beat = new Peer(iNetAddress.getHostAddress(), port, now);
 			try {
 				String beatMessage = objectMapper.writeValueAsString(beat);
 				byte[] message = beatMessage.getBytes();

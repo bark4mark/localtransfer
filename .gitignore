@@ -9,4 +9,5 @@ fabric.properties
 .classpath
 .project
 .settings
+dependency-reduced-pom.xml
 
